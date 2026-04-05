@@ -1,7 +1,6 @@
 package com.leonardo.delivery_tracking_system.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,22 +16,17 @@ public class Customer {
     private Long id;
 
     @Column(nullable = false)
-    @Size(max = 255)
     private String name;
 
-    @Column(nullable = false, unique = true)
-    @Size(max = 16)
+    @Column(nullable = false, unique = true, length = 16)
     private String cpf;
 
-    @Column(nullable = false)
-    @Size(max = 20)
+    @Column(nullable = false, length = 20)
     private String phone;
 
     @Column(nullable = false, unique = true)
-    @Size(max = 255)
     private String email;
 
     @Embedded
-    @Column(nullable = false)
     private Address address;
 }

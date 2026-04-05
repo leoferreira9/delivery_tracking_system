@@ -2,7 +2,6 @@ package com.leonardo.delivery_tracking_system.model;
 
 import com.leonardo.delivery_tracking_system.enums.VehicleType;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,11 +17,9 @@ public class Deliverer {
     private Long id;
 
     @Column(nullable = false)
-    @Size(max = 255)
     private String name;
 
-    @Column(nullable = false)
-    @Size(max = 20)
+    @Column(nullable = false, length = 20)
     private String phone;
 
     @Enumerated(EnumType.STRING)
