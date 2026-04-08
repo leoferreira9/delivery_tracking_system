@@ -3,4 +3,10 @@ package com.leonardo.delivery_tracking_system.repository;
 import com.leonardo.delivery_tracking_system.model.Customer;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface CustomerRepository extends JpaRepository<Customer, Long> {}
+import java.util.Optional;
+
+public interface CustomerRepository extends JpaRepository<Customer, Long> {
+
+    Optional<Customer> findByCpf(String cpf);
+    Optional<Customer> findByEmail(String email);
+}
