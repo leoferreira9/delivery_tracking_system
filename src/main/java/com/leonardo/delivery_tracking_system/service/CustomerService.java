@@ -1,5 +1,6 @@
 package com.leonardo.delivery_tracking_system.service;
 
+import com.leonardo.delivery_tracking_system.dto.address.AddressUpdateDTO;
 import com.leonardo.delivery_tracking_system.dto.customer.CustomerRequest;
 import com.leonardo.delivery_tracking_system.dto.customer.CustomerResponse;
 import com.leonardo.delivery_tracking_system.dto.customer.CustomerUpdateDTO;
@@ -9,9 +10,11 @@ import com.leonardo.delivery_tracking_system.mapper.CustomerMapper;
 import com.leonardo.delivery_tracking_system.model.Address;
 import com.leonardo.delivery_tracking_system.model.Customer;
 import com.leonardo.delivery_tracking_system.repository.CustomerRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CustomerService {
@@ -24,7 +27,7 @@ public class CustomerService {
         this.customerMapper = customerMapper;
     }
 
-    public Customer findCustomerByIdOrThrow(Long id){
+    private Customer findCustomerByIdOrThrow(Long id){
         return customerRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Customer not found with ID: " + id));
     }
 
@@ -32,10 +35,59 @@ public class CustomerService {
         return newValue != null ? newValue : currentValue;
     }
 
+    private boolean validateCpfAlreadyExists(String newCpf){
+        return customerRepository.findByCpf(newCpf).isPresent();
+    }
+
+    private boolean validateEmailAlreadyExists(String email){
+        return customerRepository.findByEmail(email).isPresent();
+    }
+
+    private boolean validateCpfForUpdate(String newCpf, Customer customerExists){
+        Optional<Customer> cpfExists = customerRepository.findByCpf(newCpf);
+        return cpfExists.isPresent() && cpfExists.get().getId().equals(customerExists.getId());
+    }
+
+    private boolean validateEmailForUpdate(String newEmail, Customer customerExists){
+        Optional<Customer> emailExists = customerRepository.findByEmail(newEmail);
+        return emailExists.isPresent() && emailExists.get().getId().equals(customerExists.getId());
+    }
+
     public CustomerResponse create(CustomerRequest request){
+
+        if(validateCpfAlreadyExists(request.cpf()))
+            throw new EntityAlreadyRegisteredException("CPF " + request.cpf() + " already registered!");
+
+        if(validateEmailAlreadyExists(request.email()))
+            throw new EntityAlreadyRegisteredException("Email " + request.email() + " already registered!");
+
         Customer customer = customerMapper.toEntity(request);
         Customer savedCustomer = customerRepository.save(customer);
         return customerMapper.toDto(savedCustomer);
+    }
+
+    private Address updateAddress(Customer customer, AddressUpdateDTO request){
+        if(request != null){
+            if(customer.getAddress() == null) {
+                Address newAddress = new Address();
+
+                newAddress.setStreet(request.street());
+                newAddress.setNumber(request.number());
+                newAddress.setZipCode(request.zipCode());
+                newAddress.setCity(request.city());
+                newAddress.setNeighborhood(request.neighborhood());
+                customer.setAddress(newAddress);
+            } else {
+                Address customerAddress = customer.getAddress();
+                customerAddress.setStreet(getIfNotNull(request.street(), customerAddress.getStreet()));
+                customerAddress.setNumber(getIfNotNull(request.number(), customerAddress.getNumber()));
+                customerAddress.setZipCode(getIfNotNull(request.zipCode(), customerAddress.getZipCode()));
+                customerAddress.setCity(getIfNotNull(request.city(), customerAddress.getCity()));
+                customerAddress.setNeighborhood(getIfNotNull(request.neighborhood(), customerAddress.getNeighborhood()));
+            }
+        }
+
+        return customer.getAddress();
     }
 
     public CustomerResponse findById(Long id){
@@ -47,16 +99,17 @@ public class CustomerService {
         return customerRepository.findAll().stream().map(customerMapper::toDto).toList();
     }
 
+    @Transactional
     public CustomerResponse update(Long id, CustomerUpdateDTO request){
         Customer customerExists = findCustomerByIdOrThrow(id);
 
-        if(request.cpf() != null && !request.cpf().equals(customerExists.getCpf())){
-            if(customerRepository.findByCpf(request.cpf()).isPresent())
+        if(request.cpf() != null){
+            if(validateCpfForUpdate(request.cpf(), customerExists))
                 throw new EntityAlreadyRegisteredException("CPF " + request.cpf() + " already registered!");
         }
 
-        if(request.email() != null && !request.email().equals(customerExists.getEmail())){
-            if(customerRepository.findByEmail(request.email()).isPresent())
+        if(request.email() != null){
+            if(validateEmailForUpdate(request.email(), customerExists))
                 throw new EntityAlreadyRegisteredException("Email " + request.email() + " already registered!");
         }
 
@@ -65,30 +118,15 @@ public class CustomerService {
         customerExists.setPhone(getIfNotNull(request.phone(), customerExists.getPhone()));
         customerExists.setEmail(getIfNotNull(request.email(), customerExists.getEmail()));
 
-        if(request.address() != null){
-            if(customerExists.getAddress() == null) {
-                Address newAddress = new Address();
-                newAddress.setStreet(request.address().street());
-                newAddress.setNumber(request.address().number());
-                newAddress.setZipCode(request.address().zipCode());
-                newAddress.setCity(request.address().city());
-                newAddress.setNeighborhood(request.address().neighborhood());
-                customerExists.setAddress(newAddress);
-            } else {
-                Address customerAddress = customerExists.getAddress();
-                customerAddress.setStreet(getIfNotNull(request.address().street(), customerAddress.getStreet()));
-                customerAddress.setNumber(getIfNotNull(request.address().number(), customerAddress.getNumber()));
-                customerAddress.setZipCode(getIfNotNull(request.address().zipCode(), customerAddress.getZipCode()));
-                customerAddress.setCity(getIfNotNull(request.address().city(), customerAddress.getCity()));
-                customerAddress.setNeighborhood(getIfNotNull(request.address().neighborhood(), customerAddress.getNeighborhood()));
-            }
-        }
+        Address address = updateAddress(customerExists, request.address());
+        customerExists.setAddress(address);
 
         Customer savedCustomer = customerRepository.save(customerExists);
 
         return customerMapper.toDto(savedCustomer);
     }
 
+    @Transactional
     public void delete(Long id){
         Customer customerExists = findCustomerByIdOrThrow(id);
         customerRepository.delete(customerExists);
