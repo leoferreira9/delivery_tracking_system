@@ -44,13 +44,13 @@ public class CustomerService {
     }
 
     private boolean validateCpfForUpdate(String newCpf, Customer customerExists){
-        Optional<Customer> cpfExists = customerRepository.findByCpf(newCpf);
-        return cpfExists.isPresent() && cpfExists.get().getId().equals(customerExists.getId());
+        Optional<Customer> customerFoundByCpf = customerRepository.findByCpf(newCpf);
+        return customerFoundByCpf.isPresent() && customerFoundByCpf.get().getId().equals(customerExists.getId());
     }
 
     private boolean validateEmailForUpdate(String newEmail, Customer customerExists){
-        Optional<Customer> emailExists = customerRepository.findByEmail(newEmail);
-        return emailExists.isPresent() && emailExists.get().getId().equals(customerExists.getId());
+        Optional<Customer> customerFoundByEmail = customerRepository.findByEmail(newEmail);
+        return customerFoundByEmail.isPresent() && customerFoundByEmail.get().getId().equals(customerExists.getId());
     }
 
     public CustomerResponse create(CustomerRequest request){
@@ -104,7 +104,7 @@ public class CustomerService {
         Customer customerExists = findCustomerByIdOrThrow(id);
 
         if(request.cpf() != null){
-            if(validateCpfForUpdate(request.cpf(), customerExists))
+            if(!validateCpfForUpdate(request.cpf(), customerExists))
                 throw new EntityAlreadyRegisteredException("CPF " + request.cpf() + " already registered!");
         }
 
