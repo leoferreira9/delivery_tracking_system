@@ -53,7 +53,7 @@ public class DelivererService {
         delivererExists.setVehicleType(getIfNotNull(request.vehicleType(), delivererExists.getVehicleType()));
 
         Deliverer savedDeliverer = delivererRepository.save(delivererExists);
-        return delivererMapper.toDto(delivererExists);
+        return delivererMapper.toDto(savedDeliverer);
     }
 
     public void delete(Long id){
