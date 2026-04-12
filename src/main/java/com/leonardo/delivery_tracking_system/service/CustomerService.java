@@ -109,7 +109,7 @@ public class CustomerService {
         }
 
         if(request.email() != null){
-            if(validateEmailForUpdate(request.email(), customerExists))
+            if(!validateEmailForUpdate(request.email(), customerExists))
                 throw new EntityAlreadyRegisteredException("Email " + request.email() + " already registered!");
         }
 
