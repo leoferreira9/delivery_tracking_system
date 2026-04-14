@@ -42,12 +42,12 @@ public class CustomerService {
 
     private boolean validateCpfForUpdate(String newCpf, Customer customerExists){
         Optional<Customer> customerFoundByCpf = customerRepository.findByCpf(newCpf);
-        return customerFoundByCpf.isPresent() && customerFoundByCpf.get().getId().equals(customerExists.getId());
+        return customerFoundByCpf.isEmpty() || customerFoundByCpf.get().getId().equals(customerExists.getId());
     }
 
     private boolean validateEmailForUpdate(String newEmail, Customer customerExists){
         Optional<Customer> customerFoundByEmail = customerRepository.findByEmail(newEmail);
-        return customerFoundByEmail.isPresent() && customerFoundByEmail.get().getId().equals(customerExists.getId());
+        return customerFoundByEmail.isEmpty() || customerFoundByEmail.get().getId().equals(customerExists.getId());
     }
 
     public CustomerResponse create(CustomerRequest request){
