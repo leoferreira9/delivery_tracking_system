@@ -10,6 +10,7 @@ import com.leonardo.delivery_tracking_system.mapper.CustomerMapper;
 import com.leonardo.delivery_tracking_system.model.Address;
 import com.leonardo.delivery_tracking_system.model.Customer;
 import com.leonardo.delivery_tracking_system.repository.CustomerRepository;
+import com.leonardo.delivery_tracking_system.utils.UpdateHelper;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -29,10 +30,6 @@ public class CustomerService {
 
     private Customer findCustomerByIdOrThrow(Long id){
         return customerRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Customer not found with ID: " + id));
-    }
-
-    private <T> T getIfNotNull(T newValue, T currentValue){
-        return newValue != null ? newValue : currentValue;
     }
 
     private boolean validateCpfAlreadyExists(String newCpf){
@@ -79,11 +76,11 @@ public class CustomerService {
                 customer.setAddress(newAddress);
             } else {
                 Address customerAddress = customer.getAddress();
-                customerAddress.setStreet(getIfNotNull(request.street(), customerAddress.getStreet()));
-                customerAddress.setNumber(getIfNotNull(request.number(), customerAddress.getNumber()));
-                customerAddress.setZipCode(getIfNotNull(request.zipCode(), customerAddress.getZipCode()));
-                customerAddress.setCity(getIfNotNull(request.city(), customerAddress.getCity()));
-                customerAddress.setNeighborhood(getIfNotNull(request.neighborhood(), customerAddress.getNeighborhood()));
+                customerAddress.setStreet(UpdateHelper.getIfNotNull(request.street(), customerAddress.getStreet()));
+                customerAddress.setNumber(UpdateHelper.getIfNotNull(request.number(), customerAddress.getNumber()));
+                customerAddress.setZipCode(UpdateHelper.getIfNotNull(request.zipCode(), customerAddress.getZipCode()));
+                customerAddress.setCity(UpdateHelper.getIfNotNull(request.city(), customerAddress.getCity()));
+                customerAddress.setNeighborhood(UpdateHelper.getIfNotNull(request.neighborhood(), customerAddress.getNeighborhood()));
             }
         }
 
@@ -113,10 +110,10 @@ public class CustomerService {
                 throw new EntityAlreadyRegisteredException("Email " + request.email() + " already registered!");
         }
 
-        customerExists.setName(getIfNotNull(request.name(), customerExists.getName()));
-        customerExists.setCpf(getIfNotNull(request.cpf(), customerExists.getCpf()));
-        customerExists.setPhone(getIfNotNull(request.phone(), customerExists.getPhone()));
-        customerExists.setEmail(getIfNotNull(request.email(), customerExists.getEmail()));
+        customerExists.setName(UpdateHelper.getIfNotNull(request.name(), customerExists.getName()));
+        customerExists.setCpf(UpdateHelper.getIfNotNull(request.cpf(), customerExists.getCpf()));
+        customerExists.setPhone(UpdateHelper.getIfNotNull(request.phone(), customerExists.getPhone()));
+        customerExists.setEmail(UpdateHelper.getIfNotNull(request.email(), customerExists.getEmail()));
 
         Address address = updateAddress(customerExists, request.address());
         customerExists.setAddress(address);

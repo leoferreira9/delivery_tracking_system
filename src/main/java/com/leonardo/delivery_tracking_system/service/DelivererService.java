@@ -7,6 +7,7 @@ import com.leonardo.delivery_tracking_system.exception.EntityNotFoundException;
 import com.leonardo.delivery_tracking_system.mapper.DelivererMapper;
 import com.leonardo.delivery_tracking_system.model.Deliverer;
 import com.leonardo.delivery_tracking_system.repository.DelivererRepository;
+import com.leonardo.delivery_tracking_system.utils.UpdateHelper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,10 +25,6 @@ public class DelivererService {
 
     private Deliverer findDelivererByIdOrThrow(Long id){
         return delivererRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Deliverer not found with ID: " + id));
-    }
-
-    private <T> T getIfNotNull(T newValue, T currentValue){
-        return newValue != null ? newValue : currentValue;
     }
 
     public DelivererResponse create(DelivererRequest request){
@@ -48,9 +45,9 @@ public class DelivererService {
     public DelivererResponse update(Long id, DelivererUpdateRequest request){
         Deliverer delivererExists = findDelivererByIdOrThrow(id);
 
-        delivererExists.setName(getIfNotNull(request.name(), delivererExists.getName()));
-        delivererExists.setPhone(getIfNotNull(request.phone(), delivererExists.getPhone()));
-        delivererExists.setVehicleType(getIfNotNull(request.vehicleType(), delivererExists.getVehicleType()));
+        delivererExists.setName(UpdateHelper.getIfNotNull(request.name(), delivererExists.getName()));
+        delivererExists.setPhone(UpdateHelper.getIfNotNull(request.phone(), delivererExists.getPhone()));
+        delivererExists.setVehicleType(UpdateHelper.getIfNotNull(request.vehicleType(), delivererExists.getVehicleType()));
 
         Deliverer savedDeliverer = delivererRepository.save(delivererExists);
         return delivererMapper.toDto(savedDeliverer);
