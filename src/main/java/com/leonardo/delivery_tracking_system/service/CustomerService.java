@@ -12,9 +12,10 @@ import com.leonardo.delivery_tracking_system.model.Customer;
 import com.leonardo.delivery_tracking_system.repository.CustomerRepository;
 import com.leonardo.delivery_tracking_system.utils.UpdateHelper;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -92,8 +93,9 @@ public class CustomerService {
         return customerMapper.toDto(customerFound);
     }
 
-    public List<CustomerResponse> findAll(){
-        return customerRepository.findAll().stream().map(customerMapper::toDto).toList();
+    public Page<CustomerResponse> findAll(Pageable pageable){
+        Page<Customer> customers = customerRepository.findAll(pageable);
+        return customers.map(customerMapper::toDto);
     }
 
     @Transactional

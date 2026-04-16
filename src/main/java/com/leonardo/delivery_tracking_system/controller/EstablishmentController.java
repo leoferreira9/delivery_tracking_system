@@ -5,6 +5,9 @@ import com.leonardo.delivery_tracking_system.dto.establishment.EstablishmentResp
 import com.leonardo.delivery_tracking_system.dto.establishment.EstablishmentUpdateDTO;
 import com.leonardo.delivery_tracking_system.service.EstablishmentService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,8 +35,8 @@ public class EstablishmentController {
     }
 
     @GetMapping
-    public ResponseEntity<List<EstablishmentResponse>> findAll(){
-        return ResponseEntity.ok(establishmentService.findAll());
+    public ResponseEntity<Page<EstablishmentResponse>> findAll(@PageableDefault(sort = "name") Pageable pageable){
+        return ResponseEntity.ok(establishmentService.findAll(pageable));
     }
 
     @PatchMapping("/{id}")

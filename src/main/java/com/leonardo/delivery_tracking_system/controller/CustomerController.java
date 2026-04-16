@@ -5,11 +5,12 @@ import com.leonardo.delivery_tracking_system.dto.customer.CustomerResponse;
 import com.leonardo.delivery_tracking_system.dto.customer.CustomerUpdateDTO;
 import com.leonardo.delivery_tracking_system.service.CustomerService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/v1/customers")
@@ -28,8 +29,8 @@ public class CustomerController {
 
 
     @GetMapping
-    public ResponseEntity<List<CustomerResponse>> findAll(){
-        return ResponseEntity.ok(customerService.findAll());
+    public ResponseEntity<Page<CustomerResponse>> findAll(@PageableDefault(sort = "name") Pageable pageable){
+        return ResponseEntity.ok(customerService.findAll(pageable));
     }
 
     @GetMapping("/{id}")

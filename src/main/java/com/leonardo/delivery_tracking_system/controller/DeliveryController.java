@@ -6,6 +6,9 @@ import com.leonardo.delivery_tracking_system.dto.delivery.DeliveryResponse;
 import com.leonardo.delivery_tracking_system.dto.delivery.UpdateDeliveryStatusDTO;
 import com.leonardo.delivery_tracking_system.service.DeliveryService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +28,11 @@ public class DeliveryController {
         return ResponseEntity.status(HttpStatus.CREATED).body(deliveryService.create(request));
     }
 
+    @GetMapping
+    public ResponseEntity<Page<DeliveryResponse>> findAll(@PageableDefault(sort = "createdAt") Pageable pageable){
+        return ResponseEntity.ok(deliveryService.findAll(pageable));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<DeliveryResponse> findById(@PathVariable Long id){
         return ResponseEntity.ok(deliveryService.findById(id));
@@ -34,6 +42,7 @@ public class DeliveryController {
     public ResponseEntity<DeliveryResponse> findByTrackingCode(@PathVariable String trackingCode){
         return ResponseEntity.ok(deliveryService.findByTrackingCode(trackingCode));
     }
+
 
     @PatchMapping("/{id}/status")
     public ResponseEntity<DeliveryResponse> updateStatus(@PathVariable Long id, @Valid @RequestBody UpdateDeliveryStatusDTO request){

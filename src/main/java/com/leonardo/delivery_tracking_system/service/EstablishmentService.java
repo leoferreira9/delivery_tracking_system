@@ -11,6 +11,8 @@ import com.leonardo.delivery_tracking_system.model.Establishment;
 import com.leonardo.delivery_tracking_system.repository.EstablishmentRepository;
 import com.leonardo.delivery_tracking_system.utils.UpdateHelper;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -53,8 +55,9 @@ public class EstablishmentService {
         return mapper.toDto(establishmentFound);
     }
 
-    public List<EstablishmentResponse> findAll(){
-        return repository.findAll().stream().map(mapper::toDto).toList();
+    public Page<EstablishmentResponse> findAll(Pageable pageable){
+        Page<Establishment> establishments = repository.findAll(pageable);
+        return establishments.map(mapper::toDto);
     }
 
     @Transactional

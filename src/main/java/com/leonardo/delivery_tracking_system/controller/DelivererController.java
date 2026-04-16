@@ -5,11 +5,12 @@ import com.leonardo.delivery_tracking_system.dto.deliverer.DelivererResponse;
 import com.leonardo.delivery_tracking_system.dto.deliverer.DelivererUpdateRequest;
 import com.leonardo.delivery_tracking_system.service.DelivererService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/v1/deliverers")
@@ -32,8 +33,8 @@ public class DelivererController {
     }
 
     @GetMapping
-    public ResponseEntity<List<DelivererResponse>> findAll(){
-        return ResponseEntity.ok(delivererService.findAll());
+    public ResponseEntity<Page<DelivererResponse>> findAll(@PageableDefault(sort = "name") Pageable pageable){
+        return ResponseEntity.ok(delivererService.findAll(pageable));
     }
 
     @PatchMapping("/{id}")

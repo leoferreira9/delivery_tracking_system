@@ -8,9 +8,9 @@ import com.leonardo.delivery_tracking_system.mapper.DelivererMapper;
 import com.leonardo.delivery_tracking_system.model.Deliverer;
 import com.leonardo.delivery_tracking_system.repository.DelivererRepository;
 import com.leonardo.delivery_tracking_system.utils.UpdateHelper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class DelivererService {
@@ -38,8 +38,9 @@ public class DelivererService {
         return delivererMapper.toDto(delivererFound);
     }
 
-    public List<DelivererResponse> findAll(){
-        return delivererRepository.findAll().stream().map(delivererMapper::toDto).toList();
+    public Page<DelivererResponse> findAll(Pageable pageable){
+        Page<Deliverer> deliverers = delivererRepository.findAll(pageable);
+        return deliverers.map(delivererMapper::toDto);
     }
 
     public DelivererResponse update(Long id, DelivererUpdateRequest request){

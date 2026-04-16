@@ -16,6 +16,9 @@ import com.leonardo.delivery_tracking_system.repository.DelivererRepository;
 import com.leonardo.delivery_tracking_system.repository.DeliveryRepository;
 import com.leonardo.delivery_tracking_system.repository.EstablishmentRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -75,6 +78,11 @@ public class DeliveryService {
     public DeliveryResponse findById(Long id){
         Delivery deliveryFound = findDeliveryByIdOrThrow(id);
         return deliveryMapper.toDto(deliveryFound);
+    }
+
+    public Page<DeliveryResponse> findAll(Pageable pageable){
+        Page<Delivery> deliveries = deliveryRepository.findAll(pageable);
+        return deliveries.map(deliveryMapper::toDto);
     }
 
     public DeliveryResponse findByTrackingCode(String trackingCode){
