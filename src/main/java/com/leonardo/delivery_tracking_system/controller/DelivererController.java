@@ -42,7 +42,7 @@ public class DelivererController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<DelivererResponse> delete(@PathVariable Long id){
+    public ResponseEntity<Void> delete(@PathVariable Long id){
         delivererService.delete(id);
         return ResponseEntity.noContent().build();
     }
