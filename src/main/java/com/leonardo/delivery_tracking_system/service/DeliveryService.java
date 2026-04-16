@@ -58,7 +58,7 @@ public class DeliveryService {
     public DeliveryResponse create(DeliveryRequest request){
         Customer customer = customerRepository.findById(request.customerId()).orElseThrow(() -> new EntityNotFoundException("Customer not found with ID: " + request.customerId()));
         Establishment establishment = establishmentRepository.findById(request.establishmentId()).orElseThrow(() -> new EntityNotFoundException("Establishment not found with ID: " + request.establishmentId()));
-        String trackingCode = UUID.randomUUID().toString().substring(0, 15);
+        String trackingCode = UUID.randomUUID().toString().replace("-", "").substring(0, 15).toUpperCase();
 
         Delivery delivery = new Delivery();
         delivery.setCustomer(customer);
@@ -74,6 +74,13 @@ public class DeliveryService {
 
     public DeliveryResponse findById(Long id){
         Delivery deliveryFound = findDeliveryByIdOrThrow(id);
+        return deliveryMapper.toDto(deliveryFound);
+    }
+
+    public DeliveryResponse findByTrackingCode(String trackingCode){
+        Delivery deliveryFound = deliveryRepository.findByTrackingCode(trackingCode)
+                .orElseThrow(() -> new EntityNotFoundException("Delivery not found with tracking code: " + trackingCode));
+
         return deliveryMapper.toDto(deliveryFound);
     }
 

@@ -30,6 +30,11 @@ public class DeliveryController {
         return ResponseEntity.ok(deliveryService.findById(id));
     }
 
+    @GetMapping("/tracking/{trackingCode}")
+    public ResponseEntity<DeliveryResponse> findByTrackingCode(@PathVariable String trackingCode){
+        return ResponseEntity.ok(deliveryService.findByTrackingCode(trackingCode));
+    }
+
     @PatchMapping("/{id}/status")
     public ResponseEntity<DeliveryResponse> updateStatus(@PathVariable Long id, @Valid @RequestBody UpdateDeliveryStatusDTO request){
         return ResponseEntity.ok(deliveryService.updateStatus(id, request.status()));
