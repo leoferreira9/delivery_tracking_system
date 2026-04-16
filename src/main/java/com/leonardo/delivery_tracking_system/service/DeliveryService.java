@@ -61,7 +61,6 @@ public class DeliveryService {
         String trackingCode = UUID.randomUUID().toString().substring(0, 15);
 
         Delivery delivery = new Delivery();
-        delivery.setCreatedAt(LocalDateTime.now());
         delivery.setCustomer(customer);
         delivery.setStatus(DeliveryStatus.RECEIVED);
         delivery.setEstablishment(establishment);
