@@ -39,7 +39,7 @@ public class EstablishmentService {
 
     private boolean validateCnpjForUpdate(String newCnpj, Establishment currentEstablishment){
         Optional<Establishment> establishmentExists = repository.findByCnpj(newCnpj);
-        return establishmentExists.isPresent() && establishmentExists.get().getId().equals(currentEstablishment.getId());
+        return establishmentExists.isEmpty() || establishmentExists.get().getId().equals(currentEstablishment.getId());
     }
 
     public EstablishmentResponse create(EstablishmentRequest request){
