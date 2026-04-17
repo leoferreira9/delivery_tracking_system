@@ -73,7 +73,7 @@ public class EstablishmentController {
 
     @Operation(summary = "Delete establishment")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Establishment deleted successfully"),
+            @ApiResponse(responseCode = "204", description = "Establishment deleted successfully"),
             @ApiResponse(responseCode = "404", description = "Establishment not found")
     })
     @DeleteMapping("/{id}")

@@ -74,7 +74,7 @@ public class CustomerController {
 
     @Operation(summary = "Delete customer")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Customer deleted successfully"),
+            @ApiResponse(responseCode = "204", description = "Customer deleted successfully"),
             @ApiResponse(responseCode = "404", description = "Customer not found")
     })
     @DeleteMapping("/{id}")

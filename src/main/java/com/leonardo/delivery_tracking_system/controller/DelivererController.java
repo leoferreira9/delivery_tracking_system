@@ -44,7 +44,7 @@ public class DelivererController {
             @ApiResponse(responseCode = "404", description = "Deliverer not found")
     })
     @GetMapping("/{id}")
-    public ResponseEntity<DelivererResponse> findById(@Parameter(name = "Deliverer ID", example = "1") @PathVariable Long id){
+    public ResponseEntity<DelivererResponse> findById(@Parameter(description = "Deliverer ID", example = "1") @PathVariable Long id){
         return ResponseEntity.ok(delivererService.findById(id));
     }
 
@@ -65,7 +65,7 @@ public class DelivererController {
     })
     @PatchMapping("/{id}")
     public ResponseEntity<DelivererResponse> update(
-            @Parameter(name = "Deliverer ID", example = "1") @PathVariable Long id,
+            @Parameter(description = "Deliverer ID", example = "1") @PathVariable Long id,
             @Valid @RequestBody DelivererUpdateRequest request)
     {
         return ResponseEntity.ok(delivererService.update(id, request));
@@ -73,11 +73,11 @@ public class DelivererController {
 
     @Operation(summary = "Delete deliverer")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Deliverer deleted successfully"),
+            @ApiResponse(responseCode = "204", description = "Deliverer deleted successfully"),
             @ApiResponse(responseCode = "404", description = "Deliverer not found")
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@Parameter(name = "Deliverer ID", example = "1") @PathVariable Long id){
+    public ResponseEntity<Void> delete(@Parameter(description = "Deliverer ID", example = "1") @PathVariable Long id){
         delivererService.delete(id);
         return ResponseEntity.noContent().build();
     }

@@ -52,7 +52,7 @@ public class DeliveryController {
             @ApiResponse(responseCode = "404", description = "Delivery not found"),
     })
     @GetMapping("/{id}")
-    public ResponseEntity<DeliveryResponse> findById(@Parameter(name = "Delivery ID", example = "1") @PathVariable Long id){
+    public ResponseEntity<DeliveryResponse> findById(@Parameter(description = "Delivery ID", example = "1") @PathVariable Long id){
         return ResponseEntity.ok(deliveryService.findById(id));
     }
 
@@ -62,7 +62,7 @@ public class DeliveryController {
             @ApiResponse(responseCode = "404", description = "Delivery not found"),
     })
     @GetMapping("/tracking/{trackingCode}")
-    public ResponseEntity<DeliveryResponse> findByTrackingCode(@Parameter(name = "Delivery tracking code", example = "A4DCBC52788F498") @PathVariable String trackingCode){
+    public ResponseEntity<DeliveryResponse> findByTrackingCode(@Parameter(description = "Delivery tracking code", example = "A4DCBC52788F498") @PathVariable String trackingCode){
         return ResponseEntity.ok(deliveryService.findByTrackingCode(trackingCode));
     }
 
