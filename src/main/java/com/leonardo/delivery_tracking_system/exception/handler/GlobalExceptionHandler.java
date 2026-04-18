@@ -5,6 +5,7 @@ import com.leonardo.delivery_tracking_system.exception.EntityAlreadyRegisteredEx
 import com.leonardo.delivery_tracking_system.exception.EntityNotFoundException;
 import com.leonardo.delivery_tracking_system.exception.FailedToAssignDelivererException;
 import com.leonardo.delivery_tracking_system.exception.FailedToUpdateDeliveryStatusException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import org.springframework.web.context.request.WebRequest;
 
 import java.time.Instant;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -30,24 +32,28 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(EntityAlreadyRegisteredException.class)
     public ResponseEntity<ErrorResponse> handleEntityAlreadyRegistered(EntityAlreadyRegisteredException ex, WebRequest request){
+        log.warn(ex.getMessage());
         ErrorResponse errorResponse = buildErrorResponse(409, "Already registered", ex.getMessage(), request);
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleEntityNotFound(EntityNotFoundException ex, WebRequest request){
+        log.warn(ex.getMessage());
         ErrorResponse errorResponse = buildErrorResponse(404, "Not found", ex.getMessage(), request);
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(FailedToAssignDelivererException.class)
     public ResponseEntity<ErrorResponse> handleFailedToAssignDeliverer(FailedToAssignDelivererException ex, WebRequest request){
+        log.warn(ex.getMessage());
         ErrorResponse errorResponse = buildErrorResponse(409, "Conflict", ex.getMessage(), request);
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(FailedToUpdateDeliveryStatusException.class)
     public ResponseEntity<ErrorResponse> handleFailedToUpdateDeliveryStatus(FailedToUpdateDeliveryStatusException ex, WebRequest request){
+        log.warn(ex.getMessage());
         ErrorResponse errorResponse = buildErrorResponse(409, "Conflict", ex.getMessage(), request);
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
@@ -62,18 +68,21 @@ public class GlobalExceptionHandler {
 
         String message = String.join(", ", errors);
 
+        log.error("message", ex);
         ErrorResponse errorResponse = buildErrorResponse(400, "Bad request", message, request);
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex, WebRequest request){
-        ErrorResponse errorResponse = buildErrorResponse(409, "Conflict", "Handling duplicate keys or database constraints", request);
+        log.error("Unexpected error", ex);
+        ErrorResponse errorResponse = buildErrorResponse(409, "Conflict", "Data integrity violation: duplicate or invalid data", request);
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(Exception ex, WebRequest request){
+        log.error("message", ex);
         ErrorResponse errorResponse = buildErrorResponse(500, "Internal Server Error", "An internal server error occurred", request);
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
