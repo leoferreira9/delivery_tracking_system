@@ -68,13 +68,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex, WebRequest request){
-        ErrorResponse errorResponse = buildErrorResponse(409, "Conflict", ex.getMessage(), request);
+        ErrorResponse errorResponse = buildErrorResponse(409, "Conflict", "Handling duplicate keys or database constraints", request);
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(Exception ex, WebRequest request){
-        ErrorResponse errorResponse = buildErrorResponse(500, "Internal Server Error", ex.getMessage(), request);
+        ErrorResponse errorResponse = buildErrorResponse(500, "Internal Server Error", "An internal server error occurred", request);
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
