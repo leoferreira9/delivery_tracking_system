@@ -68,7 +68,7 @@ public class GlobalExceptionHandler {
 
         String message = String.join(", ", errors);
 
-        log.error("message", ex);
+        log.error("Validation failed: {}", message, ex);
         ErrorResponse errorResponse = buildErrorResponse(400, "Bad request", message, request);
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
@@ -82,7 +82,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(Exception ex, WebRequest request){
-        log.error("message", ex);
+        log.error("Unexpected error on request to {}", request.getDescription(false), ex);
         ErrorResponse errorResponse = buildErrorResponse(500, "Internal Server Error", "An internal server error occurred", request);
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
