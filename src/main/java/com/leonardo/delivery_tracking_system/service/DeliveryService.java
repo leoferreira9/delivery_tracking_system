@@ -16,6 +16,7 @@ import com.leonardo.delivery_tracking_system.repository.DelivererRepository;
 import com.leonardo.delivery_tracking_system.repository.DeliveryRepository;
 import com.leonardo.delivery_tracking_system.repository.EstablishmentRepository;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.*;
 
+@Slf4j
 @Service
 public class DeliveryService {
 
@@ -58,6 +60,7 @@ public class DeliveryService {
 
     @Transactional
     public DeliveryResponse create(DeliveryRequest request){
+        log.info("Creating delivery");
         Customer customer = customerRepository.findById(request.customerId()).orElseThrow(() -> new EntityNotFoundException("Customer not found with ID: " + request.customerId()));
         Establishment establishment = establishmentRepository.findById(request.establishmentId()).orElseThrow(() -> new EntityNotFoundException("Establishment not found with ID: " + request.establishmentId()));
         String trackingCode = UUID.randomUUID().toString().replace("-", "").substring(0, 15).toUpperCase();
@@ -71,27 +74,38 @@ public class DeliveryService {
         delivery.setDeliveredAt(null);
 
         Delivery savedDelivery = deliveryRepository.save(delivery);
+
+        log.info("Delivery created successfully. ID: {}, Tracking code: {}", savedDelivery.getId(), savedDelivery.getTrackingCode());
         return deliveryMapper.toDto(savedDelivery);
     }
 
     public DeliveryResponse findById(Long id){
+        log.info("Getting delivery by ID: {}", id);
         Delivery deliveryFound = findDeliveryByIdOrThrow(id);
+
+        log.info("Delivery found. ID: {}", id);
         return deliveryMapper.toDto(deliveryFound);
     }
 
     public Page<DeliveryResponse> findAll(Pageable pageable){
+        log.info("Getting all deliveries. Page: {}, Size: {}", pageable.getPageNumber(), pageable.getPageSize());
         Page<Delivery> deliveries = deliveryRepository.findAll(pageable);
+
+        log.info("Found {} deliveries", deliveries.getNumberOfElements());
         return deliveries.map(deliveryMapper::toDto);
     }
 
     public DeliveryResponse findByTrackingCode(String trackingCode){
+        log.info("Getting delivery by tracking code: {}", trackingCode);
         Delivery deliveryFound = deliveryRepository.findByTrackingCode(trackingCode)
                 .orElseThrow(() -> new EntityNotFoundException("Delivery not found with tracking code: " + trackingCode));
 
+        log.info("Delivery found. ID: {}, Tracking code: {}", deliveryFound.getId(), deliveryFound.getTrackingCode());
         return deliveryMapper.toDto(deliveryFound);
     }
 
     public DeliveryResponse updateStatus(Long id, DeliveryStatus newStatus){
+        log.info("Updating delivery data by ID: {}", id);
         Delivery deliveryExists = findDeliveryByIdOrThrow(id);
 
         Set<DeliveryStatus> allowedDeliveryStatus = allowedStatus.get(deliveryExists.getStatus());
@@ -101,6 +115,7 @@ public class DeliveryService {
                 throw new FailedToUpdateDeliveryStatusException("The delivery must include the deliverer ID!");
 
             if(newStatus == DeliveryStatus.DELIVERED){
+                log.info("Setting deliveredAt for delivery ID: {}", id);
                 deliveryExists.setDeliveredAt(LocalDateTime.now());
             }
 
@@ -113,10 +128,12 @@ public class DeliveryService {
 
         Delivery savedDelivery = deliveryRepository.save(deliveryExists);
 
+        log.info("Delivery status updated successfully. ID: {}, Status: {}", id, newStatus);
         return deliveryMapper.toDto(savedDelivery);
     }
 
     public DeliveryResponse assignDeliverer(Long id, Long delivererId){
+        log.info("Assigning deliverer ID: {} to delivery ID: {}", delivererId, id);
         Delivery deliveryExists = findDeliveryByIdOrThrow(id);
         Deliverer delivererExists = delivererRepository.findById(delivererId).orElseThrow(() -> new EntityNotFoundException("Deliverer not found with ID: " + delivererId));
 
@@ -127,6 +144,8 @@ public class DeliveryService {
         }
 
         Delivery savedDelivery = deliveryRepository.save(deliveryExists);
+
+        log.info("Deliverer ID: {} assigned successfully to delivery ID: {}", delivererId, id);
         return deliveryMapper.toDto(savedDelivery);
     }
 }

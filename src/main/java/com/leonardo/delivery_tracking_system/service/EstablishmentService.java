@@ -11,12 +11,14 @@ import com.leonardo.delivery_tracking_system.model.Establishment;
 import com.leonardo.delivery_tracking_system.repository.EstablishmentRepository;
 import com.leonardo.delivery_tracking_system.utils.UpdateHelper;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class EstablishmentService {
 
@@ -42,25 +44,35 @@ public class EstablishmentService {
     }
 
     public EstablishmentResponse create(EstablishmentRequest request){
+        log.info("Creating establishment with CNPJ: {}", request.cnpj());
         if(validateCnpjAlreadyExists(request.cnpj())) throw new EntityAlreadyRegisteredException("CNPJ: " + request.cnpj() + " already registered!");
 
         Establishment establishment = mapper.toEntity(request);
         Establishment savedEstablishment = repository.save(establishment);
+
+        log.info("Establishment created successfully. ID: {}, CNPJ: {}", savedEstablishment.getId(), savedEstablishment.getCnpj());
         return mapper.toDto(savedEstablishment);
     }
 
     public EstablishmentResponse findById(Long id){
+        log.info("Getting establishment by ID: {}", id);
         Establishment establishmentFound = findEstablishmentByIdOrThrow(id);
+
+        log.info("Establishment found. ID: {}, CNPJ: {}, Name: {}", establishmentFound.getId(), establishmentFound.getCnpj(), establishmentFound.getName());
         return mapper.toDto(establishmentFound);
     }
 
     public Page<EstablishmentResponse> findAll(Pageable pageable){
+        log.info("Getting all establishments. Page: {}, Size: {}", pageable.getPageNumber(), pageable.getPageSize());
         Page<Establishment> establishments = repository.findAll(pageable);
+
+        log.info("Found {} establishments", establishments.getNumberOfElements());
         return establishments.map(mapper::toDto);
     }
 
     @Transactional
     public EstablishmentResponse update(Long id, EstablishmentUpdateDTO request){
+        log.info("Updating establishment data by ID: {}", id);
         Establishment establishmentExists = findEstablishmentByIdOrThrow(id);
 
         if(request.cnpj() != null){
@@ -73,6 +85,7 @@ public class EstablishmentService {
         establishmentExists.setPhone(UpdateHelper.getIfNotNull(request.phone(), establishmentExists.getPhone()));
 
         if(request.address() != null){
+            log.info("Updating establishment address");
             if(establishmentExists.getAddress() != null){
                 Address addressExists = establishmentExists.getAddress();
 
@@ -94,12 +107,17 @@ public class EstablishmentService {
         }
 
         Establishment savedEstablishment = repository.save(establishmentExists);
+
+        log.info("Establishment updated successfully. ID: {}, CNPJ: {}, Name: {}", savedEstablishment.getId(), savedEstablishment.getCnpj(), savedEstablishment.getName());
         return mapper.toDto(savedEstablishment);
     }
 
     @Transactional
     public void delete(Long id){
+        log.info("Deleting establishment");
         Establishment establishmentExists = findEstablishmentByIdOrThrow(id);
+
         repository.delete(establishmentExists);
+        log.info("Establishment deleted successfully. ID: {}", id);
     }
 }

@@ -12,12 +12,14 @@ import com.leonardo.delivery_tracking_system.model.Customer;
 import com.leonardo.delivery_tracking_system.repository.CustomerRepository;
 import com.leonardo.delivery_tracking_system.utils.UpdateHelper;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class CustomerService {
 
@@ -52,19 +54,26 @@ public class CustomerService {
     }
 
     public CustomerResponse create(CustomerRequest request){
-
-        if(validateCpfAlreadyExists(request.cpf()))
+        log.info("Creating customer with CPF: {}", request.cpf());
+        if(validateCpfAlreadyExists(request.cpf())){
+            log.warn("CPF already registered: {}", request.cpf());
             throw new EntityAlreadyRegisteredException("CPF " + request.cpf() + " already registered!");
+        }
 
-        if(validateEmailAlreadyExists(request.email()))
+        if(validateEmailAlreadyExists(request.email())){
+            log.warn("Email already registered: {}", request.email());
             throw new EntityAlreadyRegisteredException("Email " + request.email() + " already registered!");
+        }
 
         Customer customer = customerMapper.toEntity(request);
         Customer savedCustomer = customerRepository.save(customer);
+
+        log.info("Customer created successfully. ID: {}, CPF: {}", savedCustomer.getId(), savedCustomer.getCpf());
         return customerMapper.toDto(savedCustomer);
     }
 
     private Address updateAddress(Customer customer, AddressUpdateDTO request){
+        log.info("Updating customer address");
         if(request != null){
             if(customer.getAddress() == null) {
                 Address newAddress = new Address();
@@ -89,27 +98,38 @@ public class CustomerService {
     }
 
     public CustomerResponse findById(Long id){
+        log.info("Getting customer by ID: {}", id);
         Customer customerFound = findCustomerByIdOrThrow(id);
+
+        log.info("Customer found. ID: {}, Name: {}", customerFound.getId(), customerFound.getName());
         return customerMapper.toDto(customerFound);
     }
 
     public Page<CustomerResponse> findAll(Pageable pageable){
+        log.info("Getting all customers. Page: {}, Size: {}", pageable.getPageNumber(), pageable.getPageSize());
         Page<Customer> customers = customerRepository.findAll(pageable);
+
+        log.info("Found {} customers", customers.getNumberOfElements());
         return customers.map(customerMapper::toDto);
     }
 
     @Transactional
     public CustomerResponse update(Long id, CustomerUpdateDTO request){
+        log.info("Updating customer data by ID: {}", id);
         Customer customerExists = findCustomerByIdOrThrow(id);
 
         if(request.cpf() != null){
-            if(!validateCpfForUpdate(request.cpf(), customerExists))
+            if(!validateCpfForUpdate(request.cpf(), customerExists)){
+                log.warn("Failed to update, CPF already registered: {}", request.cpf());
                 throw new EntityAlreadyRegisteredException("CPF " + request.cpf() + " already registered!");
+            }
         }
 
         if(request.email() != null){
-            if(!validateEmailForUpdate(request.email(), customerExists))
+            if(!validateEmailForUpdate(request.email(), customerExists)){
+                log.warn("Failed to update, Email already registered: {}", request.email());
                 throw new EntityAlreadyRegisteredException("Email " + request.email() + " already registered!");
+            }
         }
 
         customerExists.setName(UpdateHelper.getIfNotNull(request.name(), customerExists.getName()));
@@ -122,12 +142,16 @@ public class CustomerService {
 
         Customer savedCustomer = customerRepository.save(customerExists);
 
+        log.info("Customer updated successfully. ID: {}, Name: {}", savedCustomer.getId(), savedCustomer.getName());
         return customerMapper.toDto(savedCustomer);
     }
 
     @Transactional
     public void delete(Long id){
+        log.info("Deleting customer");
         Customer customerExists = findCustomerByIdOrThrow(id);
+
         customerRepository.delete(customerExists);
+        log.info("Customer deleted successfully. ID: {}", id);
     }
 }
