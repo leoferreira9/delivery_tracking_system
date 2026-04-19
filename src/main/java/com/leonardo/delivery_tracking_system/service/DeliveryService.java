@@ -87,9 +87,17 @@ public class DeliveryService {
         return deliveryMapper.toDto(deliveryFound);
     }
 
-    public Page<DeliveryResponse> findAll(Pageable pageable){
-        log.info("Getting all deliveries. Page: {}, Size: {}", pageable.getPageNumber(), pageable.getPageSize());
-        Page<Delivery> deliveries = deliveryRepository.findAll(pageable);
+    public Page<DeliveryResponse> findAll(DeliveryStatus status, Pageable pageable){
+
+        Page<Delivery> deliveries;
+
+        if(status != null){
+            log.info("Getting all deliveries by status. Status: {}, Page: {}, Size: {}", status, pageable.getPageNumber(), pageable.getPageSize());
+            deliveries = deliveryRepository.findByStatus(status, pageable);
+        } else {
+            log.info("Getting all deliveries. Page: {}, Size: {}", pageable.getPageNumber(), pageable.getPageSize());
+            deliveries = deliveryRepository.findAll(pageable);
+        }
 
         log.info("Found {} deliveries", deliveries.getNumberOfElements());
         return deliveries.map(deliveryMapper::toDto);

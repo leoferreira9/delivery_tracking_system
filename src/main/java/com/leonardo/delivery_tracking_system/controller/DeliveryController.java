@@ -4,6 +4,7 @@ import com.leonardo.delivery_tracking_system.dto.delivery.AssignDelivererDTO;
 import com.leonardo.delivery_tracking_system.dto.delivery.DeliveryRequest;
 import com.leonardo.delivery_tracking_system.dto.delivery.DeliveryResponse;
 import com.leonardo.delivery_tracking_system.dto.delivery.UpdateDeliveryStatusDTO;
+import com.leonardo.delivery_tracking_system.enums.DeliveryStatus;
 import com.leonardo.delivery_tracking_system.service.DeliveryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -42,8 +43,10 @@ public class DeliveryController {
     @Operation(summary = "Get all deliveries")
     @ApiResponse(responseCode = "200", description = "Deliveries retrieved successfully")
     @GetMapping
-    public ResponseEntity<Page<DeliveryResponse>> findAll(@PageableDefault(sort = "createdAt") Pageable pageable){
-        return ResponseEntity.ok(deliveryService.findAll(pageable));
+    public ResponseEntity<Page<DeliveryResponse>> findAll(
+            @RequestParam(required = false) DeliveryStatus status,
+            @PageableDefault(sort = "createdAt") Pageable pageable){
+        return ResponseEntity.ok(deliveryService.findAll(status, pageable));
     }
 
     @Operation(summary = "Get delivery by ID")
