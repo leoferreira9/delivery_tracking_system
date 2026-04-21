@@ -117,6 +117,7 @@ public class DeliveryService {
         return deliveryMapper.toDto(deliveryFound);
     }
 
+    @Transactional
     public DeliveryResponse updateStatus(Long id, DeliveryStatus newStatus){
         log.info("Updating delivery data by ID: {}", id);
         Delivery deliveryExists = findDeliveryByIdOrThrow(id);
@@ -145,6 +146,7 @@ public class DeliveryService {
         return deliveryMapper.toDto(savedDelivery);
     }
 
+    @Transactional
     public DeliveryResponse assignDeliverer(Long id, Long delivererId){
         log.info("Assigning deliverer ID: {} to delivery ID: {}", delivererId, id);
         Delivery deliveryExists = findDeliveryByIdOrThrow(id);

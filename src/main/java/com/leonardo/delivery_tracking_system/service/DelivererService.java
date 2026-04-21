@@ -8,6 +8,7 @@ import com.leonardo.delivery_tracking_system.mapper.DelivererMapper;
 import com.leonardo.delivery_tracking_system.model.Deliverer;
 import com.leonardo.delivery_tracking_system.repository.DelivererRepository;
 import com.leonardo.delivery_tracking_system.utils.UpdateHelper;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -54,6 +55,7 @@ public class DelivererService {
         return deliverers.map(delivererMapper::toDto);
     }
 
+    @Transactional
     public DelivererResponse update(Long id, DelivererUpdateRequest request){
         log.info("Updating deliverer data by ID: {}", id);
         Deliverer delivererExists = findDelivererByIdOrThrow(id);
