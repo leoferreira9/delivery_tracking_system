@@ -50,6 +50,10 @@ public class DeliveryService {
         return deliveryRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Delivery not found with ID: " + id));
     }
 
+    private String generateTrackingCode(){
+        return UUID.randomUUID().toString().replace("-", "").substring(0, 15).toUpperCase();
+    }
+
     private static final Map<DeliveryStatus, Set<DeliveryStatus>> allowedStatus = new EnumMap<>(DeliveryStatus.class);
 
     static {
@@ -63,7 +67,12 @@ public class DeliveryService {
         log.info("Creating delivery");
         Customer customer = customerRepository.findById(request.customerId()).orElseThrow(() -> new EntityNotFoundException("Customer not found with ID: " + request.customerId()));
         Establishment establishment = establishmentRepository.findById(request.establishmentId()).orElseThrow(() -> new EntityNotFoundException("Establishment not found with ID: " + request.establishmentId()));
-        String trackingCode = UUID.randomUUID().toString().replace("-", "").substring(0, 15).toUpperCase();
+
+        String trackingCode;
+
+        do{
+            trackingCode = generateTrackingCode();
+        } while(deliveryRepository.findByTrackingCode(trackingCode).isPresent());
 
         Delivery delivery = new Delivery();
         delivery.setCustomer(customer);
