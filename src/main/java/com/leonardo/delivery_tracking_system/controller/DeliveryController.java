@@ -1,9 +1,6 @@
 package com.leonardo.delivery_tracking_system.controller;
 
-import com.leonardo.delivery_tracking_system.dto.delivery.AssignDelivererDTO;
-import com.leonardo.delivery_tracking_system.dto.delivery.DeliveryRequest;
-import com.leonardo.delivery_tracking_system.dto.delivery.DeliveryResponse;
-import com.leonardo.delivery_tracking_system.dto.delivery.UpdateDeliveryStatusDTO;
+import com.leonardo.delivery_tracking_system.dto.delivery.*;
 import com.leonardo.delivery_tracking_system.enums.DeliveryStatus;
 import com.leonardo.delivery_tracking_system.service.DeliveryService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -18,6 +15,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/v1/deliveries")
@@ -99,4 +98,8 @@ public class DeliveryController {
     }
 
 
+    @GetMapping("/{id}/history")
+    public ResponseEntity<List<DeliveryStatusHistoryResponse>> getDeliveryStatusHistory(@PathVariable Long id){
+        return ResponseEntity.ok(deliveryService.getDeliveryStatusHistory(id));
+    }
 }

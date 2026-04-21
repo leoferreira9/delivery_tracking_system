@@ -2,16 +2,16 @@ package com.leonardo.delivery_tracking_system.service;
 
 import com.leonardo.delivery_tracking_system.dto.delivery.DeliveryRequest;
 import com.leonardo.delivery_tracking_system.dto.delivery.DeliveryResponse;
+import com.leonardo.delivery_tracking_system.dto.delivery.DeliveryStatusHistoryResponse;
 import com.leonardo.delivery_tracking_system.enums.DeliveryStatus;
 import com.leonardo.delivery_tracking_system.exception.EntityNotFoundException;
 import com.leonardo.delivery_tracking_system.exception.FailedToAssignDelivererException;
 import com.leonardo.delivery_tracking_system.exception.FailedToUpdateDeliveryStatusException;
 import com.leonardo.delivery_tracking_system.mapper.DeliveryMapper;
-import com.leonardo.delivery_tracking_system.model.Customer;
-import com.leonardo.delivery_tracking_system.model.Deliverer;
-import com.leonardo.delivery_tracking_system.model.Delivery;
-import com.leonardo.delivery_tracking_system.model.Establishment;
+import com.leonardo.delivery_tracking_system.mapper.DeliveryStatusHistoryMapper;
+import com.leonardo.delivery_tracking_system.model.*;
 import com.leonardo.delivery_tracking_system.repository.DeliveryRepository;
+import com.leonardo.delivery_tracking_system.repository.DeliveryStatusHistoryRepository;
 import com.leonardo.delivery_tracking_system.specification.DeliverySpecifications;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -32,17 +32,23 @@ public class DeliveryService {
     private final CustomerService customerService;
     private final EstablishmentService establishmentService;
     private final DelivererService delivererService;
+    private final DeliveryStatusHistoryRepository deliveryStatusHistoryRepository;
+    private final DeliveryStatusHistoryMapper deliveryStatusHistoryMapper;
 
     public DeliveryService(DeliveryMapper deliveryMapper,
                            DeliveryRepository deliveryRepository,
                            CustomerService customerService,
                            EstablishmentService establishmentService,
-                           DelivererService delivererService) {
+                           DelivererService delivererService,
+                           DeliveryStatusHistoryRepository deliveryStatusHistoryRepository,
+                           DeliveryStatusHistoryMapper deliveryStatusHistoryMapper) {
         this.deliveryMapper = deliveryMapper;
         this.deliveryRepository = deliveryRepository;
         this.customerService = customerService;
         this.establishmentService = establishmentService;
         this.delivererService = delivererService;
+        this.deliveryStatusHistoryRepository = deliveryStatusHistoryRepository;
+        this.deliveryStatusHistoryMapper = deliveryStatusHistoryMapper;
     }
 
     private Delivery findDeliveryByIdOrThrow(Long id){
@@ -51,6 +57,15 @@ public class DeliveryService {
 
     private String generateTrackingCode(){
         return UUID.randomUUID().toString().replace("-", "").substring(0, 15).toUpperCase();
+    }
+
+    private DeliveryStatusHistory buildDeliveryStatusHistory(Delivery delivery){
+        DeliveryStatusHistory deliveryStatusHistory = new DeliveryStatusHistory();
+        deliveryStatusHistory.setStatus(delivery.getStatus());
+        deliveryStatusHistory.setDelivery(delivery);
+        deliveryStatusHistory.setChangedAt(LocalDateTime.now());
+
+        return deliveryStatusHistory;
     }
 
     private static final Map<DeliveryStatus, Set<DeliveryStatus>> allowedStatus = new EnumMap<>(DeliveryStatus.class);
@@ -82,6 +97,9 @@ public class DeliveryService {
         delivery.setDeliveredAt(null);
 
         Delivery savedDelivery = deliveryRepository.save(delivery);
+
+        DeliveryStatusHistory deliveryStatusHistory = buildDeliveryStatusHistory(savedDelivery);
+        deliveryStatusHistoryRepository.save(deliveryStatusHistory);
 
         log.info("Delivery created successfully. ID: {}, Tracking code: {}", savedDelivery.getId(), savedDelivery.getTrackingCode());
         return deliveryMapper.toDto(savedDelivery);
@@ -142,6 +160,9 @@ public class DeliveryService {
 
         Delivery savedDelivery = deliveryRepository.save(deliveryExists);
 
+        DeliveryStatusHistory deliveryStatusHistory = buildDeliveryStatusHistory(savedDelivery);
+        deliveryStatusHistoryRepository.save(deliveryStatusHistory);
+
         log.info("Delivery status updated successfully. ID: {}, Status: {}", id, newStatus);
         return deliveryMapper.toDto(savedDelivery);
     }
@@ -162,5 +183,10 @@ public class DeliveryService {
 
         log.info("Deliverer ID: {} assigned successfully to delivery ID: {}", delivererId, id);
         return deliveryMapper.toDto(savedDelivery);
+    }
+
+    public List<DeliveryStatusHistoryResponse> getDeliveryStatusHistory(Long id){
+        findDeliveryByIdOrThrow(id);
+        return deliveryStatusHistoryRepository.findByDelivery_Id(id).stream().map(deliveryStatusHistoryMapper::toDto).toList();
     }
 }
