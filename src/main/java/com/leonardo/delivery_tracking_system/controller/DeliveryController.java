@@ -45,8 +45,9 @@ public class DeliveryController {
     @GetMapping
     public ResponseEntity<Page<DeliveryResponse>> findAll(
             @RequestParam(required = false) DeliveryStatus status,
+            @RequestParam(required = false) Long establishmentId,
             @PageableDefault(sort = "createdAt") Pageable pageable){
-        return ResponseEntity.ok(deliveryService.findAll(status, pageable));
+        return ResponseEntity.ok(deliveryService.findAll(status, establishmentId, pageable));
     }
 
     @Operation(summary = "Get delivery by ID")

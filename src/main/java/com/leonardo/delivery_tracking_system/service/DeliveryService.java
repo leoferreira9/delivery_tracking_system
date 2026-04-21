@@ -12,10 +12,12 @@ import com.leonardo.delivery_tracking_system.model.Deliverer;
 import com.leonardo.delivery_tracking_system.model.Delivery;
 import com.leonardo.delivery_tracking_system.model.Establishment;
 import com.leonardo.delivery_tracking_system.repository.DeliveryRepository;
+import com.leonardo.delivery_tracking_system.specification.DeliverySpecifications;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -93,17 +95,14 @@ public class DeliveryService {
         return deliveryMapper.toDto(deliveryFound);
     }
 
-    public Page<DeliveryResponse> findAll(DeliveryStatus status, Pageable pageable){
+    public Page<DeliveryResponse> findAll(DeliveryStatus status, Long establishmentId, Pageable pageable){
 
         Page<Delivery> deliveries;
 
-        if(status != null){
-            log.info("Getting all deliveries by status. Status: {}, Page: {}, Size: {}", status, pageable.getPageNumber(), pageable.getPageSize());
-            deliveries = deliveryRepository.findByStatus(status, pageable);
-        } else {
-            log.info("Getting all deliveries. Page: {}, Size: {}", pageable.getPageNumber(), pageable.getPageSize());
-            deliveries = deliveryRepository.findAll(pageable);
-        }
+        Specification<Delivery> spec = DeliverySpecifications.hasStatus(status)
+                        .and(DeliverySpecifications.hasEstablishmentId(establishmentId));
+
+        deliveries = deliveryRepository.findAll(spec, pageable);
 
         log.info("Found {} deliveries", deliveries.getNumberOfElements());
         return deliveries.map(deliveryMapper::toDto);
