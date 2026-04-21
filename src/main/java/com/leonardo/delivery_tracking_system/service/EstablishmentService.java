@@ -30,7 +30,7 @@ public class EstablishmentService {
         this.mapper = mapper;
     }
 
-    private Establishment findEstablishmentByIdOrThrow(Long id){
+    public Establishment findEstablishmentByIdOrThrow(Long id){
         return repository.findById(id).orElseThrow(() -> new EntityNotFoundException("Establishment not found with ID: " + id));
     }
 

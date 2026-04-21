@@ -25,7 +25,7 @@ public class DelivererService {
         this.delivererMapper = delivererMapper;
     }
 
-    private Deliverer findDelivererByIdOrThrow(Long id){
+    public Deliverer findDelivererByIdOrThrow(Long id){
         return delivererRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Deliverer not found with ID: " + id));
     }
 

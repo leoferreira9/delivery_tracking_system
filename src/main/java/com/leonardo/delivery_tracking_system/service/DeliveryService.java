@@ -11,10 +11,7 @@ import com.leonardo.delivery_tracking_system.model.Customer;
 import com.leonardo.delivery_tracking_system.model.Deliverer;
 import com.leonardo.delivery_tracking_system.model.Delivery;
 import com.leonardo.delivery_tracking_system.model.Establishment;
-import com.leonardo.delivery_tracking_system.repository.CustomerRepository;
-import com.leonardo.delivery_tracking_system.repository.DelivererRepository;
 import com.leonardo.delivery_tracking_system.repository.DeliveryRepository;
-import com.leonardo.delivery_tracking_system.repository.EstablishmentRepository;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -30,20 +27,20 @@ public class DeliveryService {
 
     private final DeliveryMapper deliveryMapper;
     private final DeliveryRepository deliveryRepository;
-    private final CustomerRepository customerRepository;
-    private final EstablishmentRepository establishmentRepository;
-    private final DelivererRepository delivererRepository;
+    private final CustomerService customerService;
+    private final EstablishmentService establishmentService;
+    private final DelivererService delivererService;
 
     public DeliveryService(DeliveryMapper deliveryMapper,
                            DeliveryRepository deliveryRepository,
-                           CustomerRepository customerRepository,
-                           EstablishmentRepository establishmentRepository,
-                           DelivererRepository delivererRepository) {
+                           CustomerService customerService,
+                           EstablishmentService establishmentService,
+                           DelivererService delivererService) {
         this.deliveryMapper = deliveryMapper;
         this.deliveryRepository = deliveryRepository;
-        this.customerRepository = customerRepository;
-        this.establishmentRepository = establishmentRepository;
-        this.delivererRepository = delivererRepository;
+        this.customerService = customerService;
+        this.establishmentService = establishmentService;
+        this.delivererService = delivererService;
     }
 
     private Delivery findDeliveryByIdOrThrow(Long id){
@@ -65,8 +62,8 @@ public class DeliveryService {
     @Transactional
     public DeliveryResponse create(DeliveryRequest request){
         log.info("Creating delivery");
-        Customer customer = customerRepository.findById(request.customerId()).orElseThrow(() -> new EntityNotFoundException("Customer not found with ID: " + request.customerId()));
-        Establishment establishment = establishmentRepository.findById(request.establishmentId()).orElseThrow(() -> new EntityNotFoundException("Establishment not found with ID: " + request.establishmentId()));
+        Customer customer = customerService.findCustomerByIdOrThrow(request.customerId());
+        Establishment establishment = establishmentService.findEstablishmentByIdOrThrow(request.establishmentId());
 
         String trackingCode;
 
@@ -152,7 +149,7 @@ public class DeliveryService {
     public DeliveryResponse assignDeliverer(Long id, Long delivererId){
         log.info("Assigning deliverer ID: {} to delivery ID: {}", delivererId, id);
         Delivery deliveryExists = findDeliveryByIdOrThrow(id);
-        Deliverer delivererExists = delivererRepository.findById(delivererId).orElseThrow(() -> new EntityNotFoundException("Deliverer not found with ID: " + delivererId));
+        Deliverer delivererExists = delivererService.findDelivererByIdOrThrow(delivererId);
 
         if(deliveryExists.getStatus() == DeliveryStatus.PREPARING){
             deliveryExists.setDeliverer(delivererExists);

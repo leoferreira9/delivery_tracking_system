@@ -31,7 +31,7 @@ public class CustomerService {
         this.customerMapper = customerMapper;
     }
 
-    private Customer findCustomerByIdOrThrow(Long id){
+    public Customer findCustomerByIdOrThrow(Long id){
         return customerRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Customer not found with ID: " + id));
     }
 
