@@ -13,9 +13,11 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 
 @RestController
 @RequestMapping("/v1/deliverers")
@@ -35,7 +37,15 @@ public class DelivererController {
     })
     @PostMapping
     public ResponseEntity<DelivererResponse> create(@Valid @RequestBody DelivererRequest request){
-        return ResponseEntity.status(HttpStatus.CREATED).body(delivererService.create(request));
+        DelivererResponse delivererCreated = delivererService.create(request);
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(delivererCreated.id())
+                .toUri();
+
+        return ResponseEntity.created(location).body(delivererCreated);
     }
 
     @Operation(summary = "Get deliverer by ID")

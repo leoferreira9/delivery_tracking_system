@@ -12,10 +12,11 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -37,7 +38,15 @@ public class DeliveryController {
     })
     @PostMapping
     public ResponseEntity<DeliveryResponse> create(@Valid @RequestBody DeliveryRequest request){
-        return ResponseEntity.status(HttpStatus.CREATED).body(deliveryService.create(request));
+        DeliveryResponse deliveryCreated = deliveryService.create(request);
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(deliveryCreated.id())
+                .toUri();
+
+        return ResponseEntity.created(location).body(deliveryCreated);
     }
 
     @Operation(summary = "Get all deliveries")

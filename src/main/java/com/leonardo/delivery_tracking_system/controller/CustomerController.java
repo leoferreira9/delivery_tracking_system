@@ -13,9 +13,10 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import java.net.URI;
 
 @RestController
 @RequestMapping("/v1/customers")
@@ -36,9 +37,16 @@ public class CustomerController {
     })
     @PostMapping
     public ResponseEntity<CustomerResponse> create(@RequestBody @Valid CustomerRequest request){
-        return ResponseEntity.status(HttpStatus.CREATED).body(customerService.create(request));
-    }
+        CustomerResponse customerCreated = customerService.create(request);
 
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(customerCreated.id())
+                .toUri();
+
+        return ResponseEntity.created(location).body(customerCreated);
+    }
 
     @Operation(summary = "Get all customers (paginated)")
     @ApiResponse(responseCode = "200", description = "Customers retrieved successfully")

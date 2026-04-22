@@ -13,9 +13,11 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 
 @RestController
 @RequestMapping("/v1/establishments")
@@ -36,7 +38,15 @@ public class EstablishmentController {
     })
     @PostMapping
     public ResponseEntity<EstablishmentResponse> create(@Valid @RequestBody EstablishmentRequest request){
-        return ResponseEntity.status(HttpStatus.CREATED).body(establishmentService.create(request));
+        EstablishmentResponse establishmentCreated = establishmentService.create(request);
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(establishmentCreated.id())
+                .toUri();
+
+        return ResponseEntity.created(location).body(establishmentCreated);
     }
 
     @Operation(summary = "Get establishment by ID")
