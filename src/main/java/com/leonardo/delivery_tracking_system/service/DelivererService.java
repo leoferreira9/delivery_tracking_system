@@ -70,6 +70,7 @@ public class DelivererService {
         return delivererMapper.toDto(savedDeliverer);
     }
 
+    @Transactional
     public void delete(Long id){
         log.info("Deleting deliverer");
         Deliverer delivererExists = findDelivererByIdOrThrow(id);
