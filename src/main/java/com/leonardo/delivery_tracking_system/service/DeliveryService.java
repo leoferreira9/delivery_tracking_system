@@ -20,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -113,12 +114,13 @@ public class DeliveryService {
         return deliveryMapper.toDto(deliveryFound);
     }
 
-    public Page<DeliveryResponse> findAll(DeliveryStatus status, Long establishmentId, Pageable pageable){
+    public Page<DeliveryResponse> findAll(DeliveryStatus status, Long establishmentId, LocalDate startDate, LocalDate endDate, Pageable pageable){
 
         Page<Delivery> deliveries;
 
         Specification<Delivery> spec = DeliverySpecifications.hasStatus(status)
-                        .and(DeliverySpecifications.hasEstablishmentId(establishmentId));
+                .and(DeliverySpecifications.hasEstablishmentId(establishmentId))
+                .and(DeliverySpecifications.isBetween(startDate, endDate));
 
         deliveries = deliveryRepository.findAll(spec, pageable);
 

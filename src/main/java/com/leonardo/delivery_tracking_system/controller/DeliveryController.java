@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -43,10 +44,12 @@ public class DeliveryController {
     @ApiResponse(responseCode = "200", description = "Deliveries retrieved successfully")
     @GetMapping
     public ResponseEntity<Page<DeliveryResponse>> findAll(
+            @RequestParam(required = false) LocalDate startDate,
+            @RequestParam(required = false) LocalDate endDate,
             @RequestParam(required = false) DeliveryStatus status,
             @RequestParam(required = false) Long establishmentId,
             @PageableDefault(sort = "createdAt") Pageable pageable){
-        return ResponseEntity.ok(deliveryService.findAll(status, establishmentId, pageable));
+        return ResponseEntity.ok(deliveryService.findAll(status, establishmentId, startDate, endDate, pageable));
     }
 
     @Operation(summary = "Get delivery by ID")
