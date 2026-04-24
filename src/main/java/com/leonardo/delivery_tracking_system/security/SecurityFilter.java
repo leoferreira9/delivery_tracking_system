@@ -17,7 +17,7 @@ public class SecurityFilter extends OncePerRequestFilter {
 
     private final TokenService tokenService;
 
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     public SecurityFilter(TokenService tokenService, UserRepository userRepository) {
         this.tokenService = tokenService;
