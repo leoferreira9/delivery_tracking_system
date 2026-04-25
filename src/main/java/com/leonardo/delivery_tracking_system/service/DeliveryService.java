@@ -84,11 +84,7 @@ public class DeliveryService {
         Customer customer = customerService.findCustomerByIdOrThrow(request.customerId());
         Establishment establishment = establishmentService.findEstablishmentByIdOrThrow(request.establishmentId());
 
-        String trackingCode;
-
-        do{
-            trackingCode = generateTrackingCode();
-        } while(deliveryRepository.findByTrackingCode(trackingCode).isPresent());
+        String trackingCode = generateTrackingCode();
 
         Delivery delivery = new Delivery();
         delivery.setCustomer(customer);
@@ -188,7 +184,6 @@ public class DeliveryService {
         return deliveryMapper.toDto(savedDelivery);
     }
 
-    @Transactional
     public List<DeliveryStatusHistoryResponse> getDeliveryStatusHistory(Long id){
         findDeliveryByIdOrThrow(id);
         return deliveryStatusHistoryRepository.findByDelivery_Id(id).stream().map(deliveryStatusHistoryMapper::toDto).toList();
