@@ -30,8 +30,13 @@ public class SecurityFilter extends OncePerRequestFilter {
         String token = recoverToken(request);
         if(token != null){
             String email = tokenService.validateToken(token);
-            if(!email.isEmpty()){
-                var user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found!"));
+            if(email != null && !email.isBlank()){
+                var userOpt = userRepository.findByEmail(email);
+                if(userOpt.isEmpty()){
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid credentials provided");
+                    return;
+                }
+                var user = userOpt.get();
                 var auth = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
