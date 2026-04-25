@@ -28,4 +28,9 @@ public class DeliveryStatusHistory {
 
     @Column(nullable = false)
     private LocalDateTime changedAt;
+
+    @PrePersist
+    public void prePersist(){
+        this.changedAt = LocalDateTime.now();
+    }
 }

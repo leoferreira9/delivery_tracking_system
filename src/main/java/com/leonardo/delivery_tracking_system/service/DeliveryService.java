@@ -64,7 +64,6 @@ public class DeliveryService {
         DeliveryStatusHistory deliveryStatusHistory = new DeliveryStatusHistory();
         deliveryStatusHistory.setStatus(delivery.getStatus());
         deliveryStatusHistory.setDelivery(delivery);
-        deliveryStatusHistory.setChangedAt(LocalDateTime.now());
 
         return deliveryStatusHistory;
     }
@@ -189,6 +188,7 @@ public class DeliveryService {
         return deliveryMapper.toDto(savedDelivery);
     }
 
+    @Transactional
     public List<DeliveryStatusHistoryResponse> getDeliveryStatusHistory(Long id){
         findDeliveryByIdOrThrow(id);
         return deliveryStatusHistoryRepository.findByDelivery_Id(id).stream().map(deliveryStatusHistoryMapper::toDto).toList();
