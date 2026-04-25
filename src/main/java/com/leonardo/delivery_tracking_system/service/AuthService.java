@@ -12,6 +12,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AuthService {
@@ -36,6 +37,7 @@ public class AuthService {
         return new LoginResponse(token);
     }
 
+    @Transactional
     public void register(RegisterRequest request){
         if(userRepository.findByEmail(request.email()).isPresent())
             throw new EntityAlreadyRegisteredException("Email already registered");
