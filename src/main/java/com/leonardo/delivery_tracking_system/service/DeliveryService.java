@@ -13,12 +13,12 @@ import com.leonardo.delivery_tracking_system.model.*;
 import com.leonardo.delivery_tracking_system.repository.DeliveryRepository;
 import com.leonardo.delivery_tracking_system.repository.DeliveryStatusHistoryRepository;
 import com.leonardo.delivery_tracking_system.specification.DeliverySpecifications;
-import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
