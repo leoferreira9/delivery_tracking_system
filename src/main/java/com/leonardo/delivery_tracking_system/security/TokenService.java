@@ -13,10 +13,10 @@ import java.time.temporal.ChronoUnit;
 @Service
 public class TokenService {
 
-    @Value("${security.jwt.secret-key}")
+    @Value("${spring.security.jwt.secret-key}")
     private String secret;
 
-    @Value("${security.jwt.expiration:2}")
+    @Value("${spring.security.jwt.expiration:2}")
     private long expirationHours;
 
     private static final String ISSUER = "delivery_tracking_system";
