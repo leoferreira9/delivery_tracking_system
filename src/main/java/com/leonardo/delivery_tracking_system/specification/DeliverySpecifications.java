@@ -20,10 +20,36 @@ public class DeliverySpecifications {
 
     public static Specification<Delivery> isBetween(LocalDate startDate, LocalDate endDate){
         return (root, query, criteriaBuilder) -> {
-            if(startDate == null || endDate == null) return criteriaBuilder.conjunction();
-            LocalDateTime start = startDate.atStartOfDay();
-            LocalDateTime end = endDate.atTime(23, 59, 59);
+            if(startDate == null && endDate == null) return criteriaBuilder.conjunction();
+
+            LocalDateTime start = null;
+            LocalDateTime end = null;
+
+            if(startDate != null){
+                start = startDate.atStartOfDay();
+            }
+
+            if(endDate != null){
+                end = endDate.atTime(23, 59, 59);
+            }
+
+            if(start != null && end == null){
+                return criteriaBuilder.greaterThanOrEqualTo(
+                        root.get("createdAt"),
+                        start
+                );
+            }
+
+            if(start == null && end != null){
+                return criteriaBuilder.lessThanOrEqualTo(
+                        root.get("createdAt"),
+                        end
+                );
+            }
+
             return criteriaBuilder.between(root.get("createdAt"), start, end);
         };
     }
+
+
 }
