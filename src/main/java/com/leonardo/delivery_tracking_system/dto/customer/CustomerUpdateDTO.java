@@ -4,11 +4,12 @@ import com.leonardo.delivery_tracking_system.dto.address.AddressUpdateDTO;
 import com.leonardo.delivery_tracking_system.validation.NotBlankIfPresent;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public record CustomerUpdateDTO(
         @NotBlankIfPresent @Size(max = 255) String name,
-        @NotBlankIfPresent @Size(max = 16) String cpf,
+        @NotBlankIfPresent @Pattern(regexp = "^\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}$") String cpf,
         @NotBlankIfPresent @Size(max = 20) String phone,
         @NotBlankIfPresent @Email String email,
         @Valid AddressUpdateDTO address) {}
