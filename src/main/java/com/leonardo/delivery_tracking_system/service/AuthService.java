@@ -3,6 +3,7 @@ package com.leonardo.delivery_tracking_system.service;
 import com.leonardo.delivery_tracking_system.dto.user.LoginRequest;
 import com.leonardo.delivery_tracking_system.dto.user.LoginResponse;
 import com.leonardo.delivery_tracking_system.dto.user.RegisterRequest;
+import com.leonardo.delivery_tracking_system.dto.user.RegisterResponse;
 import com.leonardo.delivery_tracking_system.enums.UserRole;
 import com.leonardo.delivery_tracking_system.exception.EntityAlreadyRegisteredException;
 import com.leonardo.delivery_tracking_system.model.User;
@@ -38,11 +39,12 @@ public class AuthService {
     }
 
     @Transactional
-    public void register(RegisterRequest request){
+    public RegisterResponse register(RegisterRequest request){
         if(userRepository.findByEmail(request.email()).isPresent())
             throw new EntityAlreadyRegisteredException("Email already registered");
         String hashed = passwordEncoder.encode(request.password());
         User user = new User(request.email(), hashed, UserRole.USER);
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        return new RegisterResponse(savedUser.getEmail());
     }
 }

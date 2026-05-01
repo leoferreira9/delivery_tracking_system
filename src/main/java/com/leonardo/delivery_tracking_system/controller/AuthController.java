@@ -3,6 +3,7 @@ package com.leonardo.delivery_tracking_system.controller;
 import com.leonardo.delivery_tracking_system.dto.user.LoginRequest;
 import com.leonardo.delivery_tracking_system.dto.user.LoginResponse;
 import com.leonardo.delivery_tracking_system.dto.user.RegisterRequest;
+import com.leonardo.delivery_tracking_system.dto.user.RegisterResponse;
 import com.leonardo.delivery_tracking_system.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -34,9 +35,9 @@ public class AuthController {
 
     @Operation(summary = "Register a new user account")
     @PostMapping("/register")
-    public ResponseEntity<Void> register(@RequestBody @Valid RegisterRequest request){
+    public ResponseEntity<RegisterResponse> register(@RequestBody @Valid RegisterRequest request){
         log.info("Registering new user: {}", request.email());
-        authService.register(request);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        RegisterResponse savedUserEmail = authService.register(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedUserEmail);
     }
 }
