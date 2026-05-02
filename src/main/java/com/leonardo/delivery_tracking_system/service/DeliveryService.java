@@ -72,7 +72,7 @@ public class DeliveryService {
 
     static {
         allowedStatus.put(DeliveryStatus.RECEIVED, EnumSet.of(DeliveryStatus.PREPARING, DeliveryStatus.CANCELLED));
-        allowedStatus.put(DeliveryStatus.PREPARING, EnumSet.of(DeliveryStatus.IN_TRANSIT, DeliveryStatus.DELIVERED, DeliveryStatus.CANCELLED));
+        allowedStatus.put(DeliveryStatus.PREPARING, EnumSet.of(DeliveryStatus.IN_TRANSIT, DeliveryStatus.CANCELLED));
         allowedStatus.put(DeliveryStatus.IN_TRANSIT, EnumSet.of(DeliveryStatus.DELIVERED));
         allowedStatus.put(DeliveryStatus.DELIVERED, EnumSet.noneOf(DeliveryStatus.class));
         allowedStatus.put(DeliveryStatus.CANCELLED, EnumSet.noneOf(DeliveryStatus.class));
