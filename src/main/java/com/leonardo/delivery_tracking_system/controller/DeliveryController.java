@@ -109,9 +109,13 @@ public class DeliveryController {
         return ResponseEntity.ok(deliveryService.assignDeliverer(id, request.delivererId()));
     }
 
-
+    @Operation(summary = "Get delivery status history")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Delivery status history retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "Delivery not found")
+    })
     @GetMapping("/{id}/history")
-    public ResponseEntity<List<DeliveryStatusHistoryResponse>> getDeliveryStatusHistory(@PathVariable Long id){
+    public ResponseEntity<List<DeliveryStatusHistoryResponse>> getDeliveryStatusHistory(@Parameter(description = "Delivery ID", example = "1") @PathVariable Long id){
         return ResponseEntity.ok(deliveryService.getDeliveryStatusHistory(id));
     }
 }
