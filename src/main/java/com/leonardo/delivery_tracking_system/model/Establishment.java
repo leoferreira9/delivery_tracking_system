@@ -19,7 +19,7 @@ public class Establishment {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 18)
     private String cnpj;
 
     @Embedded
